@@ -2,8 +2,7 @@ import logging
 import time
 import traceback
 import pyrogram
-from pyrogram import filters
-from pyrogram import Client
+from pyrogram import filters, Client
 from pyrogram.types import User
 from pyrogram.types import Message
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
@@ -222,22 +221,25 @@ def deletehistory(client, message):
     users.delete_one({"user_id": user_id})
     message.reply_text("Name and username history for this user has been deleted.")
 # ... (previous code)
-
-# Function to broadcast a message to all users in a group
 @app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
-async def broadcast_message(client, message):
+async def broadcast(client, message):
     try:
-        # Get the text message to broadcast
-        text = message.text[11:]  # Remove '/broadcast '
+        # Extract the message text from the command
+        text = message.text[11:].strip()
 
-        # Iterate through all groups in the database and send the message
-        for group in groups.find():
-            group_id = group["group_id"]
-            await app.send_message(chat_id=group_id, text=text)
+        # Get a list of all the group chat IDs
+        group_ids = [group["group_id"] for group in groups.find()]
+
+        # Send the broadcast message to all groups
+        for group_id in group_ids:
+            await client.send_message(group_id, text)
+
+        # Notify the owner that the broadcast was successful
+        await message.reply_text("Broadcast sent successfully to all groups.")
 
     except Exception as e:
-        app.send_message(OWNER_ID, f"An error occurred while broadcasting: {str(e)}")
-        logger.error(f"An error occurred while broadcasting: {str(e)}")
+        await app.send_message(OWNER_ID, f"An error occurred: {str(e)}")
+        logger.error(f"An error occurred: {str(e)}")
         logger.error(traceback.format_exc())
 
 # Function to handle the /stats command
