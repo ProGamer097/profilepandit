@@ -231,7 +231,11 @@ def broadcast(client, message):
 
         for group in groups.find():
             group_id = group["group_id"]
-            app.send_message(chat_id=group_id, text=text)
+            try:
+                app.send_message(chat_id=group_id, text=text)
+            except pyrogram.errors.exceptions.bad_request_400.ChannelInvalid:
+                # Handle the CHANNEL_INVALID error
+                app.send_message(OWNER_ID, f"Failed to send broadcast to {group_id}. The channel parameter is invalid.")
         
         message.reply_text("Broadcast sent successfully to all groups!")
 
@@ -239,8 +243,8 @@ def broadcast(client, message):
         app.send_message(OWNER_ID, f"An error occurred: {str(e)}")
         logger.error(f"An error occurred: {str(e)}")
         logger.error(traceback.format_exc())
-
-# ... (rest of your code)
+        
+# boardcast function
 
 # Function to handle the /stats command
 @app.on_message(filters.command("stats"))
