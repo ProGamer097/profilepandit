@@ -233,16 +233,13 @@ async def broadcast_message(client, message):
         # Iterate through all groups in the database and send the message
         for group in groups.find():
             group_id = group["group_id"]
-            await client.send_message(chat_id=InputPeerChat(group_id), text=text)
-
-        # Notify the owner that the broadcast was successful
-        await message.reply_text("Broadcast sent successfully to all groups!")
+            await app.send_message(chat_id=group_id, text=text)
 
     except Exception as e:
-        await app.send_message(OWNER_ID, f"An error occurred during broadcast: {str(e)}")
-        logger.error(f"An error occurred during broadcast: {str(e)}")
+        app.send_message(OWNER_ID, f"An error occurred while broadcasting: {str(e)}")
+        logger.error(f"An error occurred while broadcasting: {str(e)}")
         logger.error(traceback.format_exc())
-# Rest of your code...
+
 # Function to handle the /stats command
 @app.on_message(filters.command("stats"))
 def stats(client, message):
