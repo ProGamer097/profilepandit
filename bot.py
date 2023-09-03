@@ -222,30 +222,10 @@ def deletehistory(client, message):
     message.reply_text("Name and username history for this user has been deleted.")
 # ... (previous code)
 @app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
-# Inside your broadcast function
-async def broadcast(client, message):
-    try:
-        # Extract the message text from the command
-        text = message.text[11:].strip()
-        
-        # Add debugging output
-        print(f"Sending broadcast to group_id: {group_id}")
-        
-        # Get a list of all the group chat IDs
-        group_ids = [group["group_id"] for group in groups.find()]
-
-        # Send the broadcast message to all groups
-        for group_id in group_ids:
-            await client.send_message(group_id, text)
-
-        # Notify the owner that the broadcast was successful
-        await message.reply_text("Broadcast sent successfully to all groups.")
-
-    except Exception as e:
-        await app.send_message(OWNER_ID, f"An error occurred: {str(e)}")
-        logger.error(f"An error occurred: {str(e)}")
-        logger.error(traceback.format_exc())
-
+async def send_broadcast(message_text):
+async def schedule_broadcast():
+broadcast_message = "Hello, this is a AM message!"
+ await send_broadcast(broadcast_message)
 
 # Function to handle the /stats command
 @app.on_message(filters.command("stats"))
@@ -397,13 +377,15 @@ async def check_groups():
 scheduler.add_job(check_groups, "interval", hours=1)
 
 # Start the Pyrogram client and the event loop
-def start():
-    app.start()
-    scheduler.start()
-    asyncio.get_event_loop().run_forever()
+async def main():
+    await app.start()
+    await schedule_broadcast()
+    await app.stop()
+    
 
 # Run the start function
 if __name__ == "__main__":
-    asyncio.run(start())
+    import asyncio
+    asyncio.run(main())
 
 
