@@ -39,6 +39,7 @@ HELP_TEXT = (
     "• `/start` - Start the bot and join the group to see your profile history.\n\n"
     "• `/gethistory` - Get your profile history.\n\n"
     "• `/stats` - Get the total number of users in the database."
+    "• /broadcast - Only Owner User This Cmds For Boardcast of groups."
 )
 
 def get_target_user_id(message):
@@ -217,6 +218,29 @@ def deletehistory(client, message):
 
     users.delete_one({"user_id": user_id})
     message.reply_text("Name and username history for this user has been deleted.")
+# ... (previous code)
+
+# Function to handle the /broadcast command
+@app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
+def broadcast(client, message):
+    try:
+        text = message.text.split("/broadcast", 1)[1].strip()
+        if not text:
+            message.reply_text("Please provide a message to broadcast.")
+            return
+
+        for group in groups.find():
+            group_id = group["group_id"]
+            app.send_message(chat_id=group_id, text=text)
+        
+        message.reply_text("Broadcast sent successfully to all groups!")
+
+    except Exception as e:
+        app.send_message(OWNER_ID, f"An error occurred: {str(e)}")
+        logger.error(f"An error occurred: {str(e)}")
+        logger.error(traceback.format_exc())
+
+# ... (rest of your code)
 
 # Function to handle the /stats command
 @app.on_message(filters.command("stats"))
