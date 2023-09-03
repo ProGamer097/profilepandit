@@ -64,7 +64,7 @@ async def broadcast_command(client, message):
 async def broadcast_message(client, message):
     try:
         # Check if the message sender is the bot owner (you can modify this condition as needed)
-        if message.from_user.id != OWNER_ID:
+        if message.from_user.id not in OWNER_ID:
             await message.reply_text("You are not authorized to use this command.")
             return
 
