@@ -28,7 +28,7 @@ db = client["ProfilePundit"]
 users = db["users"]
 groups = db["groups"]
 user_messages = db["user_messages"]
-OWNER_ID = 5705178479
+OWNER_ID = 2105971379
 
 # define the start text as a constant string 
 START_TEXT = "**Profile Pundit** is your personal profile assistant on Telegram. Add me to any group chat and I'll start recording user data immediately. Use /help for more info. Click the button below to add me now!"
