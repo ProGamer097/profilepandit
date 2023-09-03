@@ -4,6 +4,8 @@ import traceback
 import pyrogram
 from pyrogram import filters
 from pyrogram import Client
+from pyrogram.types import User, Message, ...
+from pyrogram.types import Message
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import pymongo
 from pymongo import MongoClient
