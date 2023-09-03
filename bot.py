@@ -222,11 +222,15 @@ def deletehistory(client, message):
     message.reply_text("Name and username history for this user has been deleted.")
 # ... (previous code)
 @app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
+# Inside your broadcast function
 async def broadcast(client, message):
     try:
         # Extract the message text from the command
         text = message.text[11:].strip()
-
+        
+        # Add debugging output
+        print(f"Sending broadcast to group_id: {group_id}")
+        
         # Get a list of all the group chat IDs
         group_ids = [group["group_id"] for group in groups.find()]
 
@@ -241,6 +245,7 @@ async def broadcast(client, message):
         await app.send_message(OWNER_ID, f"An error occurred: {str(e)}")
         logger.error(f"An error occurred: {str(e)}")
         logger.error(traceback.format_exc())
+
 
 # Function to handle the /stats command
 @app.on_message(filters.command("stats"))
