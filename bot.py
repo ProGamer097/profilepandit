@@ -38,7 +38,9 @@ HELP_TEXT = (
     "Here are the commands you can use:\n\n"
     "• `/start` - Start the bot and join the group to see your profile history.\n\n"
     "• `/gethistory` - Get your profile history.\n\n"
+     "• `/broadcast` - Only for sudo users .\n\n"
     "• `/stats` - Get the total number of users in the database."
+    
 )
 
 def get_target_user_id(message):
@@ -57,6 +59,36 @@ def get_target_user_id(message):
             return int(target)
     return None
 
+@app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
+def broadcast_command(client, message):
+    asyncio.run(broadcast_message(client, message))
+async def broadcast_message(client, message):
+    try:
+        # Check if the message sender is the bot owner (you can modify this condition as needed)
+        if message.from_user.id != OWNER_ID:
+            message.reply_text("You are not authorized to use this command.")
+            return
+
+        # Extract the message to be broadcasted (you can modify this as needed)
+        if len(message.text.split()) > 1:
+            broadcast_text = " ".join(message.text.split()[1:])
+        else:
+            message.reply_text("Please provide the message to broadcast.")
+            return
+
+        # Get a list of all the groups the bot is in
+        group_ids = [group["group_id"] for group in groups.find()]
+        
+        # Broadcast the message to all groups
+        for group_id in group_ids:
+            await app.send_message(chat_id=group_id, text=broadcast_text)
+
+        message.reply_text(f"Broadcasted the message to {len(group_ids)} groups.")
+
+    except Exception as e:
+        app.send_message(OWNER_ID, f"An error occurred: {str(e)}")
+        logger.error(f"An error occurred: {str(e)}")
+        logger.error(traceback.format_exc())
 
 # Function to handle the /start command
 @app.on_message(filters.command("start") & filters.private)
