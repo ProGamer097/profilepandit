@@ -3,6 +3,8 @@ import time
 import traceback
 import pyrogram
 from pyrogram import filters
+from pyrogram import Client
+from pyrogram.types import InputPeerChat
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import pymongo
 from pymongo import MongoClient
@@ -220,32 +222,26 @@ def deletehistory(client, message):
     message.reply_text("Name and username history for this user has been deleted.")
 # ... (previous code)
 
-# Function to handle the /broadcast command
+# Function to broadcast a message to all users in a group
 @app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
-def broadcast(client, message):
+async def broadcast_message(client, message):
     try:
-        text = message.text.split("/broadcast", 1)[1].strip()
-        if not text:
-            message.reply_text("Please provide a message to broadcast.")
-            return
+        # Get the text message to broadcast
+        text = message.text[11:]  # Remove '/broadcast '
 
+        # Iterate through all groups in the database and send the message
         for group in groups.find():
             group_id = group["group_id"]
-            try:
-                app.send_message(chat_id=group_id, text=text)
-            except pyrogram.errors.exceptions.bad_request_400.ChannelInvalid:
-                # Handle the CHANNEL_INVALID error
-                app.send_message(OWNER_ID, f"Failed to send broadcast to {group_id}. The channel parameter is invalid.")
-        
-        message.reply_text("Broadcast sent successfully to all groups!")
+            await client.send_message(chat_id=InputPeerChat(group_id), text=text)
+
+        # Notify the owner that the broadcast was successful
+        await message.reply_text("Broadcast sent successfully to all groups!")
 
     except Exception as e:
-        app.send_message(OWNER_ID, f"An error occurred: {str(e)}")
-        logger.error(f"An error occurred: {str(e)}")
+        await app.send_message(OWNER_ID, f"An error occurred during broadcast: {str(e)}")
+        logger.error(f"An error occurred during broadcast: {str(e)}")
         logger.error(traceback.format_exc())
-        
-# boardcast function
-
+# Rest of your code...
 # Function to handle the /stats command
 @app.on_message(filters.command("stats"))
 def stats(client, message):
