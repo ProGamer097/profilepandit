@@ -97,16 +97,21 @@ async def broadcast_message(client, message):
 # Function to handle the /start command
 @app.on_message(filters.command("start") & filters.private)
 def start(client, message):
-    keyboard = InlineKeyboardMarkup(
+    buttons = [
         [
-            [
-                InlineKeyboardButton(
-                    text="Add me to group Group", url="t.me/Profile_Pundit_bot?startgroup=true"
-                )
-            ]
+            InlineKeyboardButton(
+                text="➕ ᴀᴅᴅ ᴍᴇ ʏᴏᴜʀ ɢʀᴏᴜᴘ", url="t.me/Profile_Pundit_bot?startgroup=true"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="ᴀʙᴏᴜᴛ ᴀᴍʙᴏᴛ 💕", url="https://t.me/About_AMBot"
+            )
         ]
-    )
+    ]
+    keyboard = InlineKeyboardMarkup(buttons)
     message.reply_text(START_TEXT, reply_markup=keyboard)
+
 
 
 # Use the constant string in the function
