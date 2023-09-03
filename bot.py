@@ -19,11 +19,11 @@ logger.setLevel(logging.INFO)
 
 
 # Set up a Pyrogram bot object
-app = pyrogram.Client("ProfilePundit", bot_token="6025897464:AAEQZS17SQr9Pe9AvlNp4lNjwBT_AmB49dU", api_id=12227067, api_hash="b463bedd791aa733ae2297e6520302fe")
+app = pyrogram.Client("ProfilePundit", bot_token="6215758518:AAHy892YGE7Sd3dWV3Oc2sELM4PaDOXkJsE", api_id=12227067, api_hash="b463bedd791aa733ae2297e6520302fe")
 
 
 # Set up a MongoDB client object and connect to the database
-client = MongoClient("mongodb+srv://AbhiModszYT:AbhiModszYT@abhimodszyt.pom3ops.mongodb.net/?retryWrites=true&w=majority")
+client = MongoClient("mongodb+srv://yonerobot:kushal55@pundit.yjfpa8v.mongodb.net/?retryWrites=true&w=majority")
 db = client["ProfilePundit"]
 users = db["users"]
 groups = db["groups"]
