@@ -1,5 +1,4 @@
 import logging
-import time
 import traceback
 import pyrogram
 from pyrogram import filters
@@ -58,35 +57,40 @@ def get_target_user_id(message):
         else:
             return int(target)
     return None
-
+    
 @app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
-def broadcast_command(client, message):
-    asyncio.run(broadcast_message(client, message))
+async def broadcast_command(client, message):
+    await broadcast_message(client, message)
 async def broadcast_message(client, message):
     try:
         # Check if the message sender is the bot owner (you can modify this condition as needed)
         if message.from_user.id != OWNER_ID:
-            message.reply_text("You are not authorized to use this command.")
+            await message.reply_text("You are not authorized to use this command.")
             return
 
         # Extract the message to be broadcasted (you can modify this as needed)
         if len(message.text.split()) > 1:
             broadcast_text = " ".join(message.text.split()[1:])
         else:
-            message.reply_text("Please provide the message to broadcast.")
+            await message.reply_text("Please provide the message to broadcast.")
             return
 
         # Get a list of all the groups the bot is in
-        group_ids = [group["group_id"] for group in groups.find()]
+        group_ids = [str(group["group_id"]) for group in groups.find()]
         
         # Broadcast the message to all groups
         for group_id in group_ids:
-            await app.send_message(chat_id=group_id, text=broadcast_text)
+            try:
+                await client.send_message(chat_id=group_id, text=broadcast_text)
+                await asyncio.sleep(1)  # Sleep for 1 second to avoid rate limiting
+            except Exception as e:
+                # Handle any errors that occur while sending to a specific group
+                print(f"Error sending to group {group_id}: {str(e)}")
 
-        message.reply_text(f"Broadcasted the message to {len(group_ids)} groups.")
+        await message.reply_text(f"Broadcasted the message to {len(group_ids)} groups.")
 
     except Exception as e:
-        app.send_message(OWNER_ID, f"An error occurred: {str(e)}")
+        await client.send_message(OWNER_ID, f"An error occurred: {str(e)}")
         logger.error(f"An error occurred: {str(e)}")
         logger.error(traceback.format_exc())
 
