@@ -2,9 +2,7 @@ import logging
 import time
 import traceback
 import pyrogram
-from pyrogram import filters, Client
-from pyrogram.types import User
-from pyrogram.types import Message
+from pyrogram import filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import pymongo
 from pymongo import MongoClient
@@ -30,7 +28,7 @@ db = client["ProfilePundit"]
 users = db["users"]
 groups = db["groups"]
 user_messages = db["user_messages"]
-OWNER_ID = 6204761408
+OWNER_ID = 2105971379
 
 # define the start text as a constant string 
 START_TEXT = "**Profile Pundit** is your personal profile assistant on Telegram. Add me to any group chat and I'll start recording user data immediately. Use /help for more info. Click the button below to add me now!"
@@ -40,8 +38,7 @@ HELP_TEXT = (
     "Here are the commands you can use:\n\n"
     "• `/start` - Start the bot and join the group to see your profile history.\n\n"
     "• `/gethistory` - Get your profile history.\n\n"
-    "• `/stats` - Get the total number of users in the database.\n\n"
-    "• /broadcast - Only Owner User This Cmds For Boardcast of groups."
+    "• `/stats` - Get the total number of users in the database."
 )
 
 def get_target_user_id(message):
@@ -220,12 +217,6 @@ def deletehistory(client, message):
 
     users.delete_one({"user_id": user_id})
     message.reply_text("Name and username history for this user has been deleted.")
-# ... (previous code)
-@app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
-async def send_broadcast(message_text):
-async def schedule_broadcast():
-broadcast_message = "Hello, this is a AM message!"
- await send_broadcast(broadcast_message)
 
 # Function to handle the /stats command
 @app.on_message(filters.command("stats"))
@@ -377,15 +368,13 @@ async def check_groups():
 scheduler.add_job(check_groups, "interval", hours=1)
 
 # Start the Pyrogram client and the event loop
-async def main():
-    await app.start()
-    await schedule_broadcast()
-    await app.stop()
-    
+def start():
+    app.start()
+    scheduler.start()
+    asyncio.get_event_loop().run_forever()
 
 # Run the start function
 if __name__ == "__main__":
-    import asyncio
-    asyncio.run(main())
+    asyncio.run(start())
 
 
