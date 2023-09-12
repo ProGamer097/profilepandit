@@ -6,6 +6,7 @@ from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 import pymongo
 from pymongo import MongoClient
 from datetime import datetime
+import pytz
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import asyncio
 
@@ -406,7 +407,7 @@ async def check_groups():
 
 
 # Schedule the check_groups function to run every 45 minutes
-scheduler.add_job(check_groups, "interval", hours=1)
+scheduler.add_job(check_groups, "interval", hours=1, timezone=pytz.utc)
 
 # Start the Pyrogram client and the event loop
 def start():
