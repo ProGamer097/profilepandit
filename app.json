@@ -1,0 +1,29 @@
+{
+  "name": "TG File Share/Sharing Bot",
+  "description": "file sharing bot store posts and it can access by special links",
+  "keywords": [
+    "telegram",
+    "file",
+    "sharing"
+  ],
+  "repository": "https://t.me/AMBOTYT",
+  "logo": "https://graph.org/file/312d6301a08e964d7e4aa.jpg",
+  "env": {
+    "PROTECT_CONTENT": {
+      "description": "Protect contents from getting forwarded",
+      "value": "True",
+      "required": false
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "formation": {
+    "worker": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  }
+}
