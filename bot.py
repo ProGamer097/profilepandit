@@ -271,7 +271,7 @@ async def chat_watcher_func(_, message):
         pass
         
 @app.on_message(filters.command(["gstats"], [".", "!", "/"]))
-async def stats(client, message):
+async def gstats(_, message):
     users = len(await get_users())
     chats = len(await get_chats())
     await message.reply_photo(
