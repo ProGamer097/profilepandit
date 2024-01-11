@@ -84,6 +84,61 @@ def get_target_user_id(message):
             return int(target)
     return None
 
+    
+@app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
+async def broadcast_command(client, message):
+    await broadcast_message(client, message)
+async def broadcast_message(client, message):
+    try:
+        # Check if the message sender is the bot owner (you can modify this condition as needed)
+        if message.from_user.id not in OWNER_ID:
+            await message.reply_text("You are not authorized to use this command.")
+            return
+
+        # Extract the message to be broadcasted (you can modify this as needed)
+        if len(message.text.split()) > 1:
+            broadcast_text = " ".join(message.text.split()[1:])
+        else:
+            await message.reply_text("Please provide the message to broadcast.")
+            return
+
+        # Get a list of all the groups the bot is in
+        group_ids = [str(group["group_id"]) for group in groups.find()]
+        
+        # Broadcast the message to all groups
+        for group_id in group_ids:
+            try:
+                await client.send_message(chat_id=group_id, text=broadcast_text)
+                await asyncio.sleep(1)  # Sleep for 1 second to avoid rate limiting
+            except Exception as e:
+                # Handle any errors that occur while sending to a specific group
+                print(f"Error sending to group {group_id}: {str(e)}")
+
+        await message.reply_text(f"Broadcasted the message to {len(group_ids)} groups.")
+
+    except Exception as e:
+        await client.send_message(OWNER_ID, f"An error occurred: {str(e)}")
+        logger.error(f"An error occurred: {str(e)}")
+        logger.error(traceback.format_exc())
+
+# Function to handle the /start command
+@app.on_message(filters.command("start") & filters.private)
+def start(client, message):
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="➕ ᴀᴅᴅ ᴍᴇ ʏᴏᴜʀ ɢʀᴏᴜᴘ", url="t.me/Profile_Pundit_bot?startgroup=true"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="ᴀʙᴏᴜᴛ ᴀᴍʙᴏᴛ 💕", url="https://t.me/About_AMBot"
+            )
+        ]
+    ]
+    keyboard = InlineKeyboardMarkup(buttons)
+    message.reply_text(START_TEXT, reply_markup=keyboard)
+
 #CHATGROUP
 
 async def get_chats():
@@ -215,7 +270,7 @@ async def chat_watcher_func(_, message):
     except:
         pass
         
-@app.on_message(filters.command(["stats"], [".", "!", "/"]))
+@app.on_message(filters.command(["gstats"], [".", "!", "/"]))
 async def stats(client, message):
     users = len(await get_users())
     chats = len(await get_chats())
@@ -227,62 +282,6 @@ async def stats(client, message):
 ➻ ᴜsᴇʀs : {users}
 """
     )
-    
-@app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
-async def broadcast_command(client, message):
-    await broadcast_message(client, message)
-async def broadcast_message(client, message):
-    try:
-        # Check if the message sender is the bot owner (you can modify this condition as needed)
-        if message.from_user.id not in OWNER_ID:
-            await message.reply_text("You are not authorized to use this command.")
-            return
-
-        # Extract the message to be broadcasted (you can modify this as needed)
-        if len(message.text.split()) > 1:
-            broadcast_text = " ".join(message.text.split()[1:])
-        else:
-            await message.reply_text("Please provide the message to broadcast.")
-            return
-
-        # Get a list of all the groups the bot is in
-        group_ids = [str(group["group_id"]) for group in groups.find()]
-        
-        # Broadcast the message to all groups
-        for group_id in group_ids:
-            try:
-                await client.send_message(chat_id=group_id, text=broadcast_text)
-                await asyncio.sleep(1)  # Sleep for 1 second to avoid rate limiting
-            except Exception as e:
-                # Handle any errors that occur while sending to a specific group
-                print(f"Error sending to group {group_id}: {str(e)}")
-
-        await message.reply_text(f"Broadcasted the message to {len(group_ids)} groups.")
-
-    except Exception as e:
-        await client.send_message(OWNER_ID, f"An error occurred: {str(e)}")
-        logger.error(f"An error occurred: {str(e)}")
-        logger.error(traceback.format_exc())
-
-# Function to handle the /start command
-@app.on_message(filters.command("start") & filters.private)
-def start(client, message):
-    buttons = [
-        [
-            InlineKeyboardButton(
-                text="➕ ᴀᴅᴅ ᴍᴇ ʏᴏᴜʀ ɢʀᴏᴜᴘ", url="t.me/Profile_Pundit_bot?startgroup=true"
-            )
-        ],
-        [
-            InlineKeyboardButton(
-                text="ᴀʙᴏᴜᴛ ᴀᴍʙᴏᴛ 💕", url="https://t.me/About_AMBot"
-            )
-        ]
-    ]
-    keyboard = InlineKeyboardMarkup(buttons)
-    message.reply_text(START_TEXT, reply_markup=keyboard)
-
-
 
 # Use the constant string in the function
 @app.on_message(filters.command("help"))
