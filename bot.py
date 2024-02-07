@@ -10,6 +10,7 @@ import pytz
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 import asyncio
 import random
+from pyrogram.types import *
 from pyrogram.errors import FloodWait
 from pyrogram.errors import FloodWait, InputUserDeactivated, UserIsBlocked, PeerIdInvalid
 from motor.motor_asyncio import AsyncIOMotorClient as MongoCli
@@ -84,43 +85,168 @@ def get_target_user_id(message):
             return int(target)
     return None
 
+
+async def send_msg(user_id, message):
+    try:
+        await message.copy(chat_id=user_id)
+    except FloodWait as e:
+        await asyncio.sleep(e.x)
+        return send_msg(user_id, message)
+    except InputUserDeactivated:
+        return 400, f"{user_id} : deactivated\n"
+    except UserIsBlocked:
+        return 400, f"{user_id} : blocked the bot\n"
+    except PeerIdInvalid:
+        return 400, f"{user_id} : user id invalid\n"
+    except Exception:
+        return 500, f"{user_id} : {traceback.format_exc()}\n"
+
+
+async def get_chats():
+  chat_list = []
+  async for chat in db.chats.find({"chat": {"$lt": 0}}):
+    chat_list.append(chat['chat'])
+  return chat_list
+
+async def get_chat(chat):
+  chats = await get_chats()
+  if chat in chats:
+    return True
+  else:
+    return False
+
+async def add_chat(chat):
+  chats = await get_chats()
+  if chat in chats:
+    return
+  else:
+    await db.chats.insert_one({"chat": chat})
+
+async def del_chat(chat):
+  chats = await get_chats()
+  if not chat in chats:
+    return
+  else:
+    await db.chats.delete_one({"chat": chat})
+
+#UserS
+async def get_users():
+  user_list = []
+  async for user in db.users.find({"user": {"$gt": 0}}):
+    user_list.append(user['user'])
+  return user_list
+
+
+async def get_user(user):
+  users = await get_users()
+  if user in users:
+    return True
+  else:
+    return False
+
+async def add_user(user):
+  users = await get_users()
+  if user in users:
+    return
+  else:
+    await db.users.insert_one({"user": user})
+
+
+async def del_user(user):
+  users = await get_users()
+  if not user in users:
+    return
+  else:
+    await db.users.delete_one({"user": user})
+
+
+
     
 @app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
-async def broadcast_command(client, message):
-    await broadcast_message(client, message)
-async def broadcast_message(client, message):
+async def broadcast(_, message):
+    if not message.reply_to_message:
+        await message.reply_text("ʀᴇᴘʟʏ ᴛᴏ ᴀ ᴍᴇssᴀɢᴇ ᴛᴏ ʙʀᴏᴀᴅᴄᴀsᴛ ɪᴛ.")
+        return    
+    exmsg = await message.reply_text("sᴛᴀʀᴛᴇᴅ ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ!")
+    all_chats = (await get_chats()) or {}
+    all_users = (await get_users()) or {}
+    done_chats = 0
+    done_users = 0
+    failed_chats = 0
+    failed_users = 0
+    for chat in all_chats:
+        try:
+            await send_msg(chat, message.reply_to_message)
+            done_chats += 1
+            await asyncio.sleep(0.1)
+        except Exception:
+            pass
+            failed_chats += 1
+
+    for user in all_users:
+        try:
+            await send_msg(user, message.reply_to_message)
+            done_users += 1
+            await asyncio.sleep(0.1)
+        except Exception:
+            pass
+            failed_users += 1
+    if failed_users == 0 and failed_chats == 0:
+        await exmsg.edit_text(
+            f"**sᴜᴄᴄᴇssғᴜʟʟʏ ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ ✅**\n\n**sᴇɴᴛ ᴍᴇssᴀɢᴇ ᴛᴏ** `{done_chats}` **ᴄʜᴀᴛs ᴀɴᴅ** `{done_users}` **ᴜsᴇʀs**",
+        )
+    else:
+        await exmsg.edit_text(
+            f"**sᴜᴄᴄᴇssғᴜʟʟʏ ʙʀᴏᴀᴅᴄᴀsᴛɪɴɢ ✅**\n\n**sᴇɴᴛ ᴍᴇssᴀɢᴇ ᴛᴏ** `{done_chats}` **ᴄʜᴀᴛs** `{done_users}` **ᴜsᴇʀs**\n\n**ɴᴏᴛᴇ:-** `ᴅᴜᴇ ᴛᴏ sᴏᴍᴇ ɪssᴜᴇ ᴄᴀɴ'ᴛ ᴀʙʟᴇ ᴛᴏ ʙʀᴏᴀᴅᴄᴀsᴛ` `{failed_users}` **ᴜsᴇʀs ᴀɴᴅ** `{failed_chats}` **ᴄʜᴀᴛs**",
+        )
+
+@app.on_message(group=10)
+async def chat_watcher_func(_, message):
     try:
-        # Check if the message sender is the bot owner (you can modify this condition as needed)
-        if message.from_user.id not in OWNER_ID:
-            await message.reply_text("You are not authorized to use this command.")
+        if message.from_user:
+            us_in_db = await get_user(message.from_user.id)
+            if not us_in_db:
+                await add_user(message.from_user.id)
+
+        chat_id = (message.chat.id if message.chat.id != message.from_user.id else None)
+
+        if not chat_id:
             return
 
-        # Extract the message to be broadcasted (you can modify this as needed)
-        if len(message.text.split()) > 1:
-            broadcast_text = " ".join(message.text.split()[1:])
-        else:
-            await message.reply_text("Please provide the message to broadcast.")
-            return
+        in_db = await get_chat(chat_id)
+        if not in_db:
+            await add_chat(chat_id)
+    except:
+        pass
 
-        # Get a list of all the groups the bot is in
-        group_ids = [str(group["group_id"]) for group in groups.find()]
+AM_PIC = [
+    "https://telegra.ph/file/7c25ef427c9f3cded5577.jpg",
+    "https://telegra.ph/file/625d235cc0a22fb8525b5.jpg",
+    "https://telegra.ph/file/1c62254d59baf7f968ba7.jpg",
+    "https://telegra.ph/file/7a0553bd4664486ab3008.jpg",
+    "https://telegra.ph/file/7b4dfa606e6f23961d30e.jpg",
+    "https://telegra.ph/file/2773dec98d87b8562618c.jpg",
+    "https://telegra.ph/file/80353d02e0368b71d2666.jpg",
+    "https://telegra.ph/file/6e5331dc4bef87464ea1c.jpg",
+    "https://telegra.ph/file/199a2e44cb8e77bb21b34.jpg",
+    "https://telegra.ph/file/8371bcd8952d089f9ec05.jpg",
+    "https://telegra.ph/file/f970e559dd1bb96fced1a.jpg",
+    "https://telegra.ph/file/59a305f8ce0c4e85949cc.jpg"
+]
+
+@app.on_message(filters.command("gstats") & filters.user(OWNER_ID))
+async def stats(cli: Client, message: Message):
+    users = len(await get_users())
+    chats = len(await get_chats())
+    await message.reply_photo(
+        photo=random.choice(AM_PIC),
+        caption=f"""**ᴛᴏᴛᴀʟ sᴛᴀᴛs ᴏғ** {(await cli.get_me()).mention} :
+
+➻ ᴄʜᴀᴛs : {chats}
+➻ ᴜsᴇʀs : {users}
+"""
+    )
         
-        # Broadcast the message to all groups
-        for group_id in group_ids:
-            try:
-                await client.send_message(chat_id=group_id, text=broadcast_text)
-                await asyncio.sleep(1)  # Sleep for 1 second to avoid rate limiting
-            except Exception as e:
-                # Handle any errors that occur while sending to a specific group
-                print(f"Error sending to group {group_id}: {str(e)}")
-
-        await message.reply_text(f"Broadcasted the message to {len(group_ids)} groups.")
-
-    except Exception as e:
-        await client.send_message(OWNER_ID, f"An error occurred: {str(e)}")
-        logger.error(f"An error occurred: {str(e)}")
-        logger.error(traceback.format_exc())
-
 # Function to handle the /start command
 @app.on_message(filters.command("start") & filters.private)
 def start(client, message):
