@@ -29,8 +29,8 @@ logger.setLevel(logging.INFO)
 
 
 # Set up a Pyrogram bot object
-app = pyrogram.Client("ProfilePundit", bot_token="6215758518:AAHCNMrXlcSGfe00mHiB0JKfAZdTGqpZryc", api_id=12227067, api_hash="b463bedd791aa733ae2297e6520302fe")
-MONGO_DB_URI = "mongodb+srv://yonerobot:kushal55@pundit.yjfpa8v.mongodb.net/?retryWrites=true&w=majority"
+app = pyrogram.Client("ProfilePundit", bot_token="7044401862:AAHVMscowSkmCkYvq2VvFHMQyUV1546jtJ0", api_id=20457610, api_hash="b7de0dfecd19375d3f84dbedaeb92537")
+MONGO_DB_URI = "mongodb+srv://vinamratiwari579:m6YDRYH8HbwuEqxt@cluster0.x7ac1wt.mongodb.net/?retryWrites=true&w=majority"
 mongo = MongoCli(MONGO_DB_URI)
 
 db = mongo.chats
@@ -40,12 +40,12 @@ db = mongo.users
 db = db.users
 
 # Set up a MongoDB client object and connect to the database
-client = MongoClient("mongodb+srv://yonerobot:kushal55@pundit.yjfpa8v.mongodb.net/?retryWrites=true&w=majority")
-db = client["ProfilePundit"]
+client = MongoClient("mongodb+srv://vinamratiwari579:m6YDRYH8HbwuEqxt@cluster0.x7ac1wt.mongodb.net/?retryWrites=true&w=majority")
+db = client["oshio"]
 users = db["users"]
 groups = db["groups"]
 user_messages = db["user_messages"]
-OWNER_ID = [2105971379, 5360305806 , 6204761408 ] 
+OWNER_ID = [6590287973, 6590287973 , 6204761408 ] 
 
 # define the start text as a constant string 
 START_TEXT = "**Profile Pundit** is your personal profile assistant on Telegram. Add me to any group chat and I'll start recording user data immediately. Use /help for more info. Click the button below to add me now!"
@@ -62,10 +62,10 @@ HELP_TEXT = (
 
 
 AM_PIC = [
-    "https://graph.org/file/98e87a02d3fffdaef2fd5.jpg",
-    "https://graph.org/file/98e87a02d3fffdaef2fd5.jpg",
-    "https://graph.org/file/98e87a02d3fffdaef2fd5.jpg",
-    "https://graph.org/file/98e87a02d3fffdaef2fd5.jpg"
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg"
 ]
 
 
@@ -220,18 +220,18 @@ async def chat_watcher_func(_, message):
         pass
 
 AM_PIC = [
-    "https://telegra.ph/file/7c25ef427c9f3cded5577.jpg",
-    "https://telegra.ph/file/625d235cc0a22fb8525b5.jpg",
-    "https://telegra.ph/file/1c62254d59baf7f968ba7.jpg",
-    "https://telegra.ph/file/7a0553bd4664486ab3008.jpg",
-    "https://telegra.ph/file/7b4dfa606e6f23961d30e.jpg",
-    "https://telegra.ph/file/2773dec98d87b8562618c.jpg",
-    "https://telegra.ph/file/80353d02e0368b71d2666.jpg",
-    "https://telegra.ph/file/6e5331dc4bef87464ea1c.jpg",
-    "https://telegra.ph/file/199a2e44cb8e77bb21b34.jpg",
-    "https://telegra.ph/file/8371bcd8952d089f9ec05.jpg",
-    "https://telegra.ph/file/f970e559dd1bb96fced1a.jpg",
-    "https://telegra.ph/file/59a305f8ce0c4e85949cc.jpg"
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg",
+    "https://graph.org/file/3a0066c6e12a4412b832c.jpg"
 ]
 
 @app.on_message(filters.command("gstats") & filters.user(OWNER_ID))
@@ -253,12 +253,12 @@ def start(client, message):
     buttons = [
         [
             InlineKeyboardButton(
-                text="➕ ᴀᴅᴅ ᴍᴇ ʏᴏᴜʀ ɢʀᴏᴜᴘ", url="t.me/Profile_Pundit_bot?startgroup=true"
+                text="➕ ᴀᴅᴅ ᴍᴇ ʏᴏᴜʀ ɢʀᴏᴜᴘ", url="t.me/Oshio_profile_bot?startgroup=true"
             )
         ],
         [
             InlineKeyboardButton(
-                text="ᴀʙᴏᴜᴛ ᴀᴍʙᴏᴛ 💕", url="https://t.me/About_AMBot"
+                text="ᴀʙᴏᴜᴛ ᴀᴍʙᴏᴛ 💕", url="https://t.me/naruto_support1"
             )
         ]
     ]
